@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "baidu-hot-search": {
+      "command": "node",
+      "args": ["dist/index.js"],
+      "env": {}
+    }
+  }
+}

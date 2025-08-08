@@ -1,0 +1,39 @@
+{
+  "name": "baidu-hot-search-mcp",
+  "version": "1.0.0",
+  "description": "MCP服务器，用于获取百度热搜榜数据",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "baidu-hot-search-mcp": "dist/cli.js"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "start:sse": "node dist/index.js sse 3000",
+    "dev": "tsx src/index.ts",
+    "dev:sse": "tsx src/index.ts sse 3000",
+    "test": "node test-mcp-server.js",
+    "test:sse": "node test-sse.js",
+    "test:api": "node src/test-api.js",
+    "test:all": "npm run test && npm run test:sse && npm run test:api",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": ["mcp", "baidu", "hot-search", "trending", "api"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "latest",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}
