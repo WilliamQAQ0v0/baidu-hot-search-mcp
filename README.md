@@ -132,7 +132,6 @@ npm install && npm run build && npm run start
 - ✅ 配置文件必须存在
 - ✅ API ID 和 Key 不能为空或纯空格
 - ✅ 不能使用示例值（如 `your_api_id`、`your_actual_api_id` 等）
-- ��� ID 至少 3 个字符，Key 至少 8 个字符
 
 **如果配置不符合要求，服务器将拒绝启动并显示详细的错误信息。**
 
