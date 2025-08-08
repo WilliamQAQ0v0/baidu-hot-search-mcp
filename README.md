@@ -4,7 +4,7 @@
 
 ## ⚡ 快速开始
 
-### 使用NPX（推荐）
+### 使用NPX
 
 ```bash
 # 直接运行（无需安装）
@@ -12,6 +12,9 @@ npx baidu-hot-search-mcp
 
 # 启动SSE模式用于Web应用
 npx baidu-hot-search-mcp sse 3000
+
+# 备用方式：从GitHub运行
+npx https://github.com/WilliamQAQ0v0/baidu-hot-search-mcp
 ```
 
 ### 本地开发
