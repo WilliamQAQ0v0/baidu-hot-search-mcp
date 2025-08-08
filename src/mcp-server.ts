@@ -14,8 +14,29 @@ import * as url from 'url';
 export class BaiduHotSearchMCPServer {
   private server: Server;
   private hotSearchService: BaiduHotSearchService;
+  private configManager: ConfigManager;
 
-  constructor() {
+  constructor(configPath?: string) {
+    // 初始化配置管理器并立即验证配置
+    this.configManager = new ConfigManager(configPath);
+    
+    // 在构造函数中就验证配置，确保配置文件存在且有效
+    try {
+      this.configManager.loadConfig();
+      console.error('✅ 配置文件加载成功');
+    } catch (error) {
+      console.error('❌ 配置文件加载失败:', error instanceof Error ? error.message : '未知错误');
+      console.error('💡 请确保 config.json 文件存在且包含有效的百度API配置');
+      console.error('📝 配置文件格式示例:');
+      console.error(JSON.stringify({
+        "baidu_api": {
+          "id": "your_user_id",
+          "key": "your_api_key"
+        }
+      }, null, 2));
+      throw new Error('配置验证失败，服务器无法启动');
+    }
+
     this.server = new Server(
       {
         name: 'baidu-hot-search-mcp',
@@ -29,7 +50,8 @@ export class BaiduHotSearchMCPServer {
       }
     );
 
-    this.hotSearchService = new BaiduHotSearchService();
+    // 使用已验证的配置管理器创建服务
+    this.hotSearchService = new BaiduHotSearchService(this.configManager);
     this.setupToolHandlers();
     this.setupResourceHandlers();
   }

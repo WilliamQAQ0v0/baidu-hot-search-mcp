@@ -52,22 +52,36 @@ export class ConfigManager {
       throw new Error('配置文件格式错误：缺少 baidu_api 配置块');
     }
 
-    if (!config.baidu_api.id || typeof config.baidu_api.id !== 'string') {
+    if (!config.baidu_api.id || typeof config.baidu_api.id !== 'string' || config.baidu_api.id.trim() === '') {
       throw new Error('配置文件格式错误：baidu_api.id 必须是非空字符串');
     }
 
-    if (!config.baidu_api.key || typeof config.baidu_api.key !== 'string') {
+    if (!config.baidu_api.key || typeof config.baidu_api.key !== 'string' || config.baidu_api.key.trim() === '') {
       throw new Error('配置文件格式错误：baidu_api.key 必须是非空字符串');
     }
 
-    // 检查是否为默认值
-    if (config.baidu_api.id === 'your_user_id') {
-      throw new Error('请在 config.json 中设置你的实际 API 用户ID');
+    // 检查是否为默认值或示例值
+    const trimmedId = config.baidu_api.id.trim();
+    const trimmedKey = config.baidu_api.key.trim();
+
+    if (trimmedId === 'your_user_id' || trimmedId === 'your-user-id' || trimmedId === 'example_id') {
+      throw new Error('请在 config.json 中设置你的实际 API 用户ID，当前值看起来是示例值');
     }
 
-    if (config.baidu_api.key === 'your_api_key') {
-      throw new Error('请在 config.json 中设置你的实际 API 密钥');
+    if (trimmedKey === 'your_api_key' || trimmedKey === 'your-api-key' || trimmedKey === 'example_key') {
+      throw new Error('请在 config.json 中设置你的实际 API 密钥，当前值看起来是示例值');
     }
+
+    // 检查ID和Key的基本格式
+    if (trimmedId.length < 3) {
+      throw new Error('API 用户ID 长度不能少于3个字符');
+    }
+
+    if (trimmedKey.length < 8) {
+      throw new Error('API 密钥长度不能少于8个字符');
+    }
+
+    console.log(`✅ 配置验证通过 - ID: ${trimmedId.substring(0, 3)}***, Key: ${trimmedKey.substring(0, 4)}***`);
   }
 
   /**
