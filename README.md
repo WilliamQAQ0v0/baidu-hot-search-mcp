@@ -82,9 +82,11 @@ npm install && npm run build && npm run start
 }
 ```
 
-## 🔧 可选配置
+## 🔧 必需配置
 
-创建 `config.json` 文件以配置百度API（提高稳定性）：
+**重要：从 v1.1.0 开始，API 配置是必需的！**
+
+创建 `config.json` 文件配置百度API：
 
 ```json
 {
@@ -94,6 +96,30 @@ npm install && npm run build && npm run start
   }
 }
 ```
+
+### 配置文件位置
+
+- **默认位置**: 项目根目录的 `config.json`
+- **自定义位置**: 使用 `--config` 参数指定
+
+```bash
+# 使用默认配置文件
+npx baidu-hot-search-mcp
+
+# 使用自定义配置文件
+npx baidu-hot-search-mcp --config /path/to/your/config.json
+```
+
+### ⚠️ 配置验证
+
+服务器启动时会严格验证配置：
+
+- ✅ 配置文件必须存在
+- ✅ API ID 和 Key 不能为空
+- ✅ 不能使用示例值（如 `your_api_id`）
+- ✅ ID 至少 3 个字符，Key 至少 8 个字符
+
+如果配置无效，服务器将拒绝启动并提供详细的错误说明。
 
 ## 🤖 AI 使用示例
 
