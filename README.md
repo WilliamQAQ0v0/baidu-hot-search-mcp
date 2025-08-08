@@ -21,7 +21,7 @@
 
 **注意**：请替换为您的真实 API 凭据，不能使用示例值。
 
-**获取 API 凭据**：请访问 [API Hub](https://www.apihz.cn/) 获取您的 API ID 和密钥。
+**获取 API 凭据**：请访问 [API盒子](https://www.apihz.cn/?shareid=10004969) 获取您的 API ID 和密钥。
 
 ### 第二步：运行服务
 
