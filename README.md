@@ -2,6 +2,9 @@
 
 🔥 为 Claude 和 Cherry Studio 提供百度热搜榜数据的 Model Context Protocol (MCP) 服务器。
 
+## 开发日志
+后续可能会支持更多平台
+
 ## ⚡ 快速开始
 
 **⚠️ 重要：请先创建配置文件再运行命令！**
