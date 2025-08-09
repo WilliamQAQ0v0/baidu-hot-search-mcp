@@ -102,23 +102,6 @@ export class BaiduHotSearchMCPServer {
           },
         },
         {
-          name: 'get_top_hot_search',
-          description: '获取排名前N的热搜',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              count: {
-                type: 'number',
-                description: '要获取的TOP数量，默认为5',
-                minimum: 1,
-                maximum: 20,
-                default: 5,
-              },
-            },
-            additionalProperties: false,
-          },
-        },
-        {
           name: 'clear_cache',
           description: '清除热搜数据缓存',
           inputSchema: {
@@ -140,8 +123,6 @@ export class BaiduHotSearchMCPServer {
             return await this.handleGetHotSearch(args);
           case 'search_hot_search':
             return await this.handleSearchHotSearch(args);
-          case 'get_top_hot_search':
-            return await this.handleGetTopHotSearch(args);
           case 'clear_cache':
             return await this.handleClearCache();
           default:
@@ -174,12 +155,6 @@ export class BaiduHotSearchMCPServer {
           description: '实时的百度热搜榜数据',
           mimeType: 'application/json',
         },
-        {
-          uri: 'baidu://hot-search/top5',
-          name: '百度热搜榜TOP5',
-          description: '排名前5的热搜数据',
-          mimeType: 'application/json',
-        },
       ],
     }));
 
@@ -191,8 +166,6 @@ export class BaiduHotSearchMCPServer {
         switch (uri) {
           case 'baidu://hot-search/current':
             return await this.handleReadCurrentHotSearch();
-          case 'baidu://hot-search/top5':
-            return await this.handleReadTop5HotSearch();
           default:
             throw new Error(`未知资源: ${uri}`);
         }
@@ -250,22 +223,6 @@ export class BaiduHotSearchMCPServer {
     };
   }
 
-  /**
-   * 处理获取TOP热搜工具
-   */
-  private async handleGetTopHotSearch(args: any) {
-    const count = args?.count ?? 5;
-    const results = await this.hotSearchService.getTopHotSearch(count);
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: this.formatHotSearchResults(results, `百度热搜榜 TOP ${count}`),
-        },
-      ],
-    };
-  }
 
   /**
    * 处理清除缓存工具
@@ -300,22 +257,6 @@ export class BaiduHotSearchMCPServer {
     };
   }
 
-  /**
-   * 处理读取TOP5热搜资源
-   */
-  private async handleReadTop5HotSearch() {
-    const data = await this.hotSearchService.getTopHotSearch(5);
-    
-    return {
-      contents: [
-        {
-          uri: 'baidu://hot-search/top5',
-          mimeType: 'application/json',
-          text: JSON.stringify(data, null, 2),
-        },
-      ],
-    };
-  }
 
   /**
    * 格式化热搜结果为可读文本
@@ -365,8 +306,8 @@ export class BaiduHotSearchMCPServer {
     await this.server.connect(serverTransport);
     console.error('📱 启动 STDIO 传输模式');
     console.error('🚀 百度热搜榜 MCP 服务器已启动');
-    console.error('📋 可用工具: get_hot_search, search_hot_search, get_top_hot_search, clear_cache');
-    console.error('📚 可用资源: baidu://hot-search/current, baidu://hot-search/top5');
+    console.error('📋 可用工具: get_hot_search, search_hot_search, clear_cache');
+    console.error('📚 可用资源: baidu://hot-search/current');
   }
 
   /**
@@ -412,8 +353,8 @@ export class BaiduHotSearchMCPServer {
           type: 'server-info',
           name: 'baidu-hot-search-mcp',
           version: '1.0.0',
-          tools: ['get_hot_search', 'search_hot_search', 'get_top_hot_search', 'clear_cache'],
-          resources: ['baidu://hot-search/current', 'baidu://hot-search/top5']
+          tools: ['get_hot_search', 'search_hot_search', 'clear_cache'],
+          resources: ['baidu://hot-search/current']
         };
         res.write(`data: ${JSON.stringify(serverInfo)}\\n\\n`);
 
@@ -460,8 +401,8 @@ export class BaiduHotSearchMCPServer {
       console.error(`🌐 启动 SSE 传输模式，端口: ${port}`);
       console.error(`🔗 访问地址: http://localhost:${port}`);
       console.error('🚀 百度热搜榜 MCP 服务器已启动');
-      console.error('📋 可用工具: get_hot_search, search_hot_search, get_top_hot_search, clear_cache');
-      console.error('📚 可用资源: baidu://hot-search/current, baidu://hot-search/top5');
+      console.error('📋 可用工具: get_hot_search, search_hot_search, clear_cache');
+      console.error('📚 可用资源: baidu://hot-search/current');
       console.error('💡 在浏览器中访问上述地址测试SSE连接');
     });
   }

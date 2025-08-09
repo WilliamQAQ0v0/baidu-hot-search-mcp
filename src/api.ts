@@ -199,13 +199,6 @@ export class BaiduHotSearchService {
     return new Error('未知错误');
   }
 
-  /**
-   * 获取特定排名范围的热搜
-   */
-  public async getTopHotSearch(count: number = 10): Promise<SimplifiedHotSearchItem[]> {
-    const allData = await this.getHotSearchData();
-    return allData.slice(0, Math.min(count, allData.length));
-  }
 
   /**
    * 搜索特定关键词的热搜
