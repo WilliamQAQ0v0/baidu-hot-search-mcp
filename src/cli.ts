@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-import { BaiduHotSearchMCPServer } from './mcp-server.js';
+import { HotContentMCPServer } from './mcp-server.js';
 
 // CLI入口
-console.log('🔥 启动百度热搜榜 MCP 服务器');
+console.log('🔥 启动热门内容 MCP 服务器');
 
-const server = new BaiduHotSearchMCPServer();
+const server = new HotContentMCPServer();
 await server.start();

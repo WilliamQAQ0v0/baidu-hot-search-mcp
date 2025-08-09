@@ -1,11 +1,11 @@
 {
-  "name": "baidu-hot-search-mcp",
-  "version": "1.1.0",
-  "description": "MCP服务器，用于获取百度热搜榜数据",
+  "name": "hot-content-mcp",
+  "version": "2.0.0",
+  "description": "MCP服务器，支持获取百度热搜、B站热门视频等多平台热门内容数据",
   "main": "dist/index.js",
   "type": "module",
   "bin": {
-    "baidu-hot-search-mcp": "dist/cli.js"
+    "hot-content-mcp": "dist/cli.js"
   },
   "files": [
     "dist/**/*",
@@ -24,7 +24,7 @@
     "test:all": "npm run test && npm run test:sse && npm run test:api",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["mcp", "baidu", "hot-search", "trending", "api"],
+  "keywords": ["mcp", "hot-content", "trending", "baidu", "bilibili", "hot-search", "api"],
   "author": "",
   "license": "MIT",
   "dependencies": {

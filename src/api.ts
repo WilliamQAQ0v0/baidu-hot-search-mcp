@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { ConfigManager, BaiduApiConfig } from './config.js';
+import { ConfigManager, ApiConfig } from './config.js';
 
 // 百度热搜榜条目接口
 export interface BaiduHotSearchItem {
@@ -19,12 +19,43 @@ export interface BaiduHotSearchItem {
   word: string;
 }
 
-// API响应接口
+// B站视频数据接口
+export interface BilibiliVideoItem {
+  title: string;
+  desc: string;
+  pic: string;
+  firstframe: string;
+  url: string;
+  publocation: string;
+  aid: number;
+  bvid: string;
+  mid: number;
+  name: string;
+  face: string;
+  view: number;
+  vv: number;
+  danmaku: number;
+  reply: number;
+  favorite: number;
+  coin: number;
+  share: number;
+  like: number;
+}
+
+// 百度API响应接口
 export interface BaiduApiResponse {
   code: number;
   time: number;
   time2: string;
   data: BaiduHotSearchItem[];
+}
+
+// B站API响应接口
+export interface BilibiliApiResponse {
+  code: number;
+  time: number;
+  time2: string;
+  data: BilibiliVideoItem[];
 }
 
 // 简化的热搜条目，用于MCP返回
@@ -35,6 +66,26 @@ export interface SimplifiedHotSearchItem {
   trend: string;
   url: string;
   description?: string;
+}
+
+// 简化的B站视频数据，用于MCP返回
+export interface SimplifiedBilibiliItem {
+  rank: number;
+  title: string;
+  author: string;
+  views: number;
+  likes: number;
+  coins: number;
+  url: string;
+  bvid: string;
+  description?: string;
+  publishLocation?: string;
+  stats: {
+    danmaku: number;
+    reply: number;
+    favorite: number;
+    share: number;
+  };
 }
 
 export class BaiduHotSearchService {
@@ -91,7 +142,7 @@ export class BaiduHotSearchService {
   /**
    * 构建API请求URL
    */
-  private buildApiUrl(config: BaiduApiConfig): string {
+  private buildApiUrl(config: ApiConfig): string {
     const params = new URLSearchParams({
       id: config.id,
       key: config.key
@@ -224,5 +275,151 @@ export class BaiduHotSearchService {
     this.cacheData = null;
     this.lastFetchTime = 0;
     console.log('🗑️ 缓存已清除');
+  }
+}
+
+export class BilibiliHotSearchService {
+  private configManager: ConfigManager;
+  private baseUrl = 'https://cn.apihz.cn/api/bang/bilibili1.php';
+  private lastFetchTime: number = 0;
+  private cacheData: SimplifiedBilibiliItem[] | null = null;
+  private readonly CACHE_DURATION = 5 * 60 * 1000;
+
+  constructor(configManager?: ConfigManager) {
+    this.configManager = configManager || new ConfigManager();
+  }
+
+  public async getBilibiliHotData(useCache: boolean = true): Promise<SimplifiedBilibiliItem[]> {
+    if (useCache && this.isCacheValid()) {
+      console.log('📋 使用B站缓存数据');
+      return this.cacheData!;
+    }
+
+    if (!this.configManager.hasBilibiliConfig()) {
+      throw new Error('未配置API，请检查config.json配置文件');
+    }
+
+    try {
+      console.log('🌐 开始获取B站热门视频数据...');
+      
+      const apiConfig = this.configManager.getApiConfig();
+      const url = this.buildApiUrl(apiConfig);
+      const response = await this.makeApiRequest(url);
+      
+      this.validateResponse(response.data);
+      const simplifiedData = this.transformData(response.data);
+      this.updateCache(simplifiedData);
+      
+      console.log(`✅ 成功获取 ${simplifiedData.length} 条B站视频数据`);
+      return simplifiedData;
+      
+    } catch (error) {
+      console.error('❌ 获取B站数据失败:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  private buildApiUrl(config: ApiConfig): string {
+    const params = new URLSearchParams({
+      id: config.id,
+      key: config.key
+    });
+    
+    return `${this.baseUrl}?${params.toString()}`;
+  }
+
+  private async makeApiRequest(url: string): Promise<AxiosResponse<BilibiliApiResponse>> {
+    const response = await axios.get<BilibiliApiResponse>(url, {
+      timeout: 10000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
+    
+    return response;
+  }
+
+  private validateResponse(response: BilibiliApiResponse): void {
+    if (!response) {
+      throw new Error('B站API响应为空');
+    }
+    
+    if (response.code !== 200) {
+      throw new Error(`B站API返回错误状态码: ${response.code}`);
+    }
+    
+    if (!response.data || !Array.isArray(response.data)) {
+      throw new Error('B站API响应数据格式错误：data字段无效');
+    }
+    
+    if (response.data.length === 0) {
+      throw new Error('B站API返回的视频数据为空');
+    }
+  }
+
+  private transformData(response: BilibiliApiResponse): SimplifiedBilibiliItem[] {
+    return response.data.map((item, index) => ({
+      rank: index + 1,
+      title: item.title || '未知标题',
+      author: item.name || '未知UP主',
+      views: item.view || item.vv || 0,
+      likes: item.like || 0,
+      coins: item.coin || 0,
+      url: item.url || '',
+      bvid: item.bvid || '',
+      description: item.desc || undefined,
+      publishLocation: item.publocation || undefined,
+      stats: {
+        danmaku: item.danmaku || 0,
+        reply: item.reply || 0,
+        favorite: item.favorite || 0,
+        share: item.share || 0
+      }
+    })).sort((a, b) => a.rank - b.rank);
+  }
+
+  private isCacheValid(): boolean {
+    return this.cacheData !== null && 
+           (Date.now() - this.lastFetchTime) < this.CACHE_DURATION;
+  }
+
+  private updateCache(data: SimplifiedBilibiliItem[]): void {
+    this.cacheData = data;
+    this.lastFetchTime = Date.now();
+  }
+
+  private handleError(error: any): Error {
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        return new Error(`B站API请求失败: ${error.response.status} - ${error.response.statusText}`);
+      } else if (error.request) {
+        return new Error('B站API网络请求超时或无响应');
+      }
+    }
+    
+    if (error instanceof Error) {
+      return error;
+    }
+    
+    return new Error('B站API未知错误');
+  }
+
+  public async getTopBilibiliVideos(count: number = 10): Promise<SimplifiedBilibiliItem[]> {
+    const allData = await this.getBilibiliHotData();
+    return allData.slice(0, Math.min(count, allData.length));
+  }
+
+  public async searchBilibiliVideos(keyword: string): Promise<SimplifiedBilibiliItem[]> {
+    const allData = await this.getBilibiliHotData();
+    return allData.filter(item => 
+      item.title.toLowerCase().includes(keyword.toLowerCase()) ||
+      item.author.toLowerCase().includes(keyword.toLowerCase())
+    );
+  }
+
+  public clearCache(): void {
+    this.cacheData = null;
+    this.lastFetchTime = 0;
+    console.log('🗑️ B站缓存已清除');
   }
 }

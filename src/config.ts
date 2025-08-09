@@ -1,13 +1,13 @@
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
-export interface BaiduApiConfig {
+export interface ApiConfig {
   id: string;
   key: string;
 }
 
 export interface Config {
-  baidu_api: BaiduApiConfig;
+  api: ApiConfig;
 }
 
 export class ConfigManager {
@@ -48,50 +48,79 @@ export class ConfigManager {
       throw new Error('配置文件格式错误：根对象无效');
     }
 
-    if (!config.baidu_api || typeof config.baidu_api !== 'object') {
-      throw new Error('配置文件格式错误：缺少 baidu_api 配置块');
+    // 兼容旧格式的百度API配置
+    if (config.baidu_api && !config.api) {
+      config.api = config.baidu_api;
+      console.log('🔄 自动将baidu_api配置转换为通用api配置');
     }
 
-    if (!config.baidu_api.id || typeof config.baidu_api.id !== 'string' || config.baidu_api.id.trim() === '') {
-      throw new Error('配置文件格式错误：baidu_api.id 必须是非空字符串');
+    if (!config.api || typeof config.api !== 'object') {
+      throw new Error('配置文件格式错误：缺少 api 配置块');
     }
 
-    if (!config.baidu_api.key || typeof config.baidu_api.key !== 'string' || config.baidu_api.key.trim() === '') {
-      throw new Error('配置文件格式错误：baidu_api.key 必须是非空字符串');
+    this.validateApiConfig(config.api, 'api');
+  }
+
+  private validateApiConfig(apiConfig: any, apiName: string): void {
+    if (!apiConfig.id || typeof apiConfig.id !== 'string' || apiConfig.id.trim() === '') {
+      throw new Error(`配置文件格式错误：${apiName}.id 必须是非空字符串`);
     }
 
-    // 检查是否为默认值或示例值
-    const trimmedId = config.baidu_api.id.trim();
-    const trimmedKey = config.baidu_api.key.trim();
+    if (!apiConfig.key || typeof apiConfig.key !== 'string' || apiConfig.key.trim() === '') {
+      throw new Error(`配置文件格式错误：${apiName}.key 必须是非空字符串`);
+    }
+
+    const trimmedId = apiConfig.id.trim();
+    const trimmedKey = apiConfig.key.trim();
 
     if (trimmedId === 'your_user_id' || trimmedId === 'your-user-id' || trimmedId === 'example_id') {
-      throw new Error('请在 config.json 中设置你的实际 API 用户ID，当前值看起来是示例值');
+      throw new Error(`请在 config.json 中设置你的实际 ${apiName} 用户ID，当前值看起来是示例值`);
     }
 
     if (trimmedKey === 'your_api_key' || trimmedKey === 'your-api-key' || trimmedKey === 'example_key') {
-      throw new Error('请在 config.json 中设置你的实际 API 密钥，当前值看起来是示例值');
+      throw new Error(`请在 config.json 中设置你的实际 ${apiName} 密钥，当前值看起来是示例值`);
     }
 
-    // 检查ID和Key的基本格式
     if (trimmedId.length < 3) {
-      throw new Error('API 用户ID 长度不能少于3个字符');
+      throw new Error(`${apiName} 用户ID 长度不能少于3个字符`);
     }
 
     if (trimmedKey.length < 8) {
-      throw new Error('API 密钥长度不能少于8个字符');
+      throw new Error(`${apiName} 密钥长度不能少于8个字符`);
     }
 
-    console.log(`✅ 配置验证通过 - ID: ${trimmedId.substring(0, 3)}***, Key: ${trimmedKey.substring(0, 4)}***`);
+    console.log(`✅ ${apiName} 配置验证通过 - ID: ${trimmedId.substring(0, 3)}***, Key: ${trimmedKey.substring(0, 4)}***`);
   }
 
   /**
-   * 获取百度API配置
+   * 获取API配置
    */
-  public getBaiduConfig(): BaiduApiConfig {
+  public getApiConfig(): ApiConfig {
     if (!this.config) {
       this.loadConfig();
     }
-    return this.config!.baidu_api;
+    return this.config!.api;
+  }
+
+  /**
+   * 获取百度API配置 (兼容性方法)
+   */
+  public getBaiduConfig(): ApiConfig {
+    return this.getApiConfig();
+  }
+
+  /**
+   * 获取B站API配置 (兼容性方法)
+   */
+  public getBilibiliConfig(): ApiConfig {
+    return this.getApiConfig();
+  }
+
+  /**
+   * 检查是否配置了B站API (兼容性方法)
+   */
+  public hasBilibiliConfig(): boolean {
+    return true; // 现在统一使用一个配置
   }
 
   /**

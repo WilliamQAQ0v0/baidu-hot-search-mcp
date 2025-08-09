@@ -43,10 +43,11 @@ coverage/
 
 # API配置（敏感信息）
 config.json
-
+.clade.json
 # 临时文件
 *.tmp
 *.temp
 
 # 上传指南（临时文件）
 UPLOAD_GUIDE.md
+bilibili_api_doc.md

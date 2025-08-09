@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { BaiduHotSearchMCPServer } from './mcp-server.js';
+import { HotContentMCPServer } from './mcp-server.js';
 
 async function main() {
   try {
@@ -30,7 +30,7 @@ async function main() {
     }
 
     // 创建并启动服务器（配置验证将在构造函数中进行）
-    const server = new BaiduHotSearchMCPServer(configPath);
+    const server = new HotContentMCPServer(configPath);
     await server.start(transportArg as 'stdio' | 'sse', portArg);
   } catch (error) {
     console.error('❌ MCP服务器启动失败:', error instanceof Error ? error.message : error);
@@ -38,7 +38,7 @@ async function main() {
     console.error('🔧 故障排除提示:');
     console.error('1. 检查 config.json 文件是否存在');
     console.error('2. 确保 config.json 格式正确');
-    console.error('3. 验证 baidu_api 配置项是否完整');
+    console.error('3. 验证 api 配置项是否完整');
     console.error('4. 检查 API 密钥是否有效');
     process.exit(1);
   }
