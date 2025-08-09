@@ -46,7 +46,7 @@ export class HotContentMCPServer {
     this.server = new Server(
       {
         name: 'hot-content-mcp',
-        version: '2.0.0',
+        version: '2.2.0',
       },
       {
         capabilities: {
