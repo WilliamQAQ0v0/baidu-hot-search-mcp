@@ -418,6 +418,23 @@ export class HotContentMCPServer {
     };
   }
 
+  /**
+   * 处理读取TOP5热搜资源
+   */
+  private async handleReadTop5HotSearch() {
+    const data = await this.hotSearchService.getTopHotSearch(5);
+    
+    return {
+      contents: [
+        {
+          uri: 'baidu://hot-search/top5',
+          mimeType: 'application/json',
+          text: JSON.stringify(data, null, 2),
+        },
+      ],
+    };
+  }
+
 
   /**
    * 处理获取B站热门视频工具

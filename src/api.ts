@@ -262,6 +262,14 @@ export class BaiduHotSearchService {
   }
 
   /**
+   * 获取排名前N的热搜
+   */
+  public async getTopHotSearch(count: number = 10): Promise<SimplifiedHotSearchItem[]> {
+    const allData = await this.getHotSearchData();
+    return allData.slice(0, Math.min(count, allData.length));
+  }
+
+  /**
    * 清除缓存
    */
   public clearCache(): void {
