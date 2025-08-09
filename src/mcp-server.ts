@@ -273,23 +273,21 @@ export class HotContentMCPServer {
         },
       ];
 
-      // 如果配置了B站API，添加B站相关资源
-      if (this.configManager.hasBilibiliConfig()) {
-        resources.push(
-          {
-            uri: 'bilibili://videos/current',
-            name: '当前B站热门视频',
-            description: '实时的B站热门视频数据',
-            mimeType: 'application/json',
-          },
-          {
-            uri: 'bilibili://videos/top5',
-            name: 'B站热门视频TOP5',
-            description: '排名前5的B站热门视频',
-            mimeType: 'application/json',
-          }
-        );
-      }
+      // 如果配置了API，添加B站相关资源（现在总是可用）
+      resources.push(
+        {
+          uri: 'bilibili://videos/current',
+          name: '当前B站热门视频',
+          description: '实时的B站热门视频数据',
+          mimeType: 'application/json',
+        },
+        {
+          uri: 'bilibili://videos/top5',
+          name: 'B站热门视频TOP5',
+          description: '排名前5的B站热门视频',
+          mimeType: 'application/json',
+        }
+      );
 
       return { resources };
     });
@@ -386,6 +384,7 @@ export class HotContentMCPServer {
     };
   }
 
+
   /**
    * 处理清除缓存工具
    */
@@ -419,22 +418,6 @@ export class HotContentMCPServer {
     };
   }
 
-  /**
-   * 处理读取TOP5热搜资源
-   */
-  private async handleReadTop5HotSearch() {
-    const data = await this.hotSearchService.getTopHotSearch(5);
-    
-    return {
-      contents: [
-        {
-          uri: 'baidu://hot-search/top5',
-          mimeType: 'application/json',
-          text: JSON.stringify(data, null, 2),
-        },
-      ],
-    };
-  }
 
   /**
    * 处理获取B站热门视频工具
@@ -692,8 +675,8 @@ export class HotContentMCPServer {
           type: 'server-info',
           name: 'baidu-hot-search-mcp',
           version: '1.0.0',
-          tools: ['get_hot_search', 'search_hot_search', 'get_top_hot_search', 'clear_cache'],
-          resources: ['baidu://hot-search/current', 'baidu://hot-search/top5']
+          tools: ['get_hot_search', 'search_hot_search', 'clear_cache'],
+          resources: ['baidu://hot-search/current']
         };
         res.write(`data: ${JSON.stringify(serverInfo)}\\n\\n`);
 
@@ -740,8 +723,8 @@ export class HotContentMCPServer {
       console.error(`🌐 启动 SSE 传输模式，端口: ${port}`);
       console.error(`🔗 访问地址: http://localhost:${port}`);
       console.error('🚀 百度热搜榜 MCP 服务器已启动');
-      console.error('📋 可用工具: get_hot_search, search_hot_search, get_top_hot_search, clear_cache');
-      console.error('📚 可用资源: baidu://hot-search/current, baidu://hot-search/top5');
+      console.error('📋 可用工具: get_hot_search, search_hot_search, clear_cache');
+      console.error('📚 可用资源: baidu://hot-search/current');
       console.error('💡 在浏览器中访问上述地址测试SSE连接');
     });
   }
