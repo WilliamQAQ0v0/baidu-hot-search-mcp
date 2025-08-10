@@ -59,16 +59,14 @@ npm install && npm run build && npm run start
 
 ### 百度热搜工具
 
-- **get_hot_search** - 获取百度热搜榜数据
-- **search_hot_search** - 搜索包含特定关键词的热搜
-- **get_top_hot_search** - 获取排名前N的热搜
-- **clear_cache** - 清除百度热搜数据缓存
+- **get_baidu_hot_search** - 获取百度热搜榜数据（支持count参数，默认10条，最大50条）
+- **search_baidu_hot_search** - 搜索包含特定关键词的百度热搜
+- **clear_baidu_cache** - 清除百度热搜数据缓存
 
 ### B站热门视频工具
 
-- **get_bilibili_hot** - 获取B站热门视频数据
+- **get_bilibili_hot** - 获取B站热门视频数据（支持count参数，默认10条，最大50条）
 - **search_bilibili_videos** - 搜索B站视频（根据标题或UP主名称）
-- **get_top_bilibili_videos** - 获取排名前N的B站热门视频
 - **clear_bilibili_cache** - 清除B站视频数据缓存
 
 ### MCP 资源  

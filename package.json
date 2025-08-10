@@ -1,6 +1,6 @@
 {
   "name": "hot-content-mcp",
-  "version": "2.2.3",
+  "version": "2.3.0",
   "description": "MCP服务器，支持获取百度热搜、B站热门视频等多平台热门内容数据",
   "main": "dist/index.js",
   "type": "module",

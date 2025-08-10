@@ -51,3 +51,4 @@ config.json
 # 上传指南（临时文件）
 UPLOAD_GUIDE.md
 bilibili_api_doc.md
+test-cherry-config.js

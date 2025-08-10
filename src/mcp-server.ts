@@ -46,7 +46,7 @@ export class HotContentMCPServer {
     this.server = new Server(
       {
         name: 'hot-content-mcp',
-        version: '2.2.2',
+        version: '2.3.0',
       },
       {
         capabilities: {
@@ -72,7 +72,7 @@ export class HotContentMCPServer {
       const tools = [
         // 百度热搜工具
         {
-          name: 'get_hot_search',
+          name: 'get_baidu_hot_search',
           description: '获取百度热搜榜数据',
           inputSchema: {
             type: 'object',
@@ -94,8 +94,8 @@ export class HotContentMCPServer {
           },
         },
         {
-          name: 'search_hot_search',
-          description: '搜索包含特定关键词的热搜',
+          name: 'search_baidu_hot_search',
+          description: '搜索包含特定关键词的百度热搜',
           inputSchema: {
             type: 'object',
             properties: {
@@ -110,35 +110,15 @@ export class HotContentMCPServer {
           },
         },
         {
-          name: 'get_top_hot_search',
-          description: '获取排名前N的热搜',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              count: {
-                type: 'number',
-                description: '要获取的TOP数量，默认为5',
-                minimum: 1,
-                maximum: 20,
-                default: 5,
-              },
-            },
-            additionalProperties: false,
-          },
-        },
-        {
-          name: 'clear_cache',
-          description: '清除热搜数据缓存',
+          name: 'clear_baidu_cache',
+          description: '清除百度热搜数据缓存',
           inputSchema: {
             type: 'object',
             properties: {},
             additionalProperties: false,
           },
-        }
-      ];
-
-      // 如果配置了API，添加B站相关工具（现在总是可用）
-      tools.push(
+        },
+        // B站工具
         {
           name: 'get_bilibili_hot',
           description: '获取B站热门视频数据',
@@ -178,23 +158,6 @@ export class HotContentMCPServer {
           },
         },
         {
-          name: 'get_top_bilibili_videos',
-          description: '获取排名前N的B站热门视频',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              count: {
-                type: 'number',
-                description: '要获取的TOP数量，默认为5',
-                minimum: 1,
-                maximum: 20,
-                default: 5,
-              },
-            },
-            additionalProperties: false,
-          },
-        },
-        {
           name: 'clear_bilibili_cache',
           description: '清除B站视频数据缓存',
           inputSchema: {
@@ -203,7 +166,7 @@ export class HotContentMCPServer {
             additionalProperties: false,
           },
         }
-      );
+      ];
 
       return { tools };
     });
@@ -215,22 +178,18 @@ export class HotContentMCPServer {
       try {
         switch (name) {
           // 百度热搜工具
-          case 'get_hot_search':
-            return await this.handleGetHotSearch(args);
-          case 'search_hot_search':
-            return await this.handleSearchHotSearch(args);
-          case 'get_top_hot_search':
-            return await this.handleGetTopHotSearch(args);
-          case 'clear_cache':
-            return await this.handleClearCache();
+          case 'get_baidu_hot_search':
+            return await this.handleGetBaiduHotSearch(args);
+          case 'search_baidu_hot_search':
+            return await this.handleSearchBaiduHotSearch(args);
+          case 'clear_baidu_cache':
+            return await this.handleClearBaiduCache();
           
           // B站工具
           case 'get_bilibili_hot':
             return await this.handleGetBilibiliHot(args);
           case 'search_bilibili_videos':
             return await this.handleSearchBilibiliVideos(args);
-          case 'get_top_bilibili_videos':
-            return await this.handleGetTopBilibiliVideos(args);
           case 'clear_bilibili_cache':
             return await this.handleClearBilibiliCache();
           
@@ -271,10 +230,7 @@ export class HotContentMCPServer {
           description: '排名前5的热搜数据',
           mimeType: 'application/json',
         },
-      ];
-
-      // 如果配置了API，添加B站相关资源（现在总是可用）
-      resources.push(
+        // B站资源
         {
           uri: 'bilibili://videos/current',
           name: '当前B站热门视频',
@@ -287,7 +243,7 @@ export class HotContentMCPServer {
           description: '排名前5的B站热门视频',
           mimeType: 'application/json',
         }
-      );
+      ];
 
       return { resources };
     });
@@ -320,9 +276,9 @@ export class HotContentMCPServer {
   }
 
   /**
-   * 处理获取热搜工具
+   * 处理获取百度热搜工具
    */
-  private async handleGetHotSearch(args: any) {
+  private async handleGetBaiduHotSearch(args: any) {
     const count = args?.count ?? 10;
     const useCache = args?.use_cache ?? true;
 
@@ -340,9 +296,9 @@ export class HotContentMCPServer {
   }
 
   /**
-   * 处理搜索热搜工具
+   * 处理搜索百度热搜工具
    */
-  private async handleSearchHotSearch(args: any) {
+  private async handleSearchBaiduHotSearch(args: any) {
     const keyword = args.keyword;
     const results = await this.hotSearchService.searchHotSearch(keyword);
 
@@ -368,34 +324,16 @@ export class HotContentMCPServer {
   }
 
   /**
-   * 处理获取TOP热搜工具
+   * 处理清除百度缓存工具
    */
-  private async handleGetTopHotSearch(args: any) {
-    const count = args?.count ?? 5;
-    const results = await this.hotSearchService.getTopHotSearch(count);
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: this.formatHotSearchResults(results, `百度热搜榜 TOP ${count}`),
-        },
-      ],
-    };
-  }
-
-
-  /**
-   * 处理清除缓存工具
-   */
-  private async handleClearCache() {
+  private async handleClearBaiduCache() {
     this.hotSearchService.clearCache();
 
     return {
       content: [
         {
           type: 'text',
-          text: '✅ 缓存已清除，下次请求将获取最新数据。',
+          text: '✅ 百度热搜缓存已清除，下次请求将获取最新数据。',
         },
       ],
     };
@@ -422,19 +360,19 @@ export class HotContentMCPServer {
    * 处理读取TOP5热搜资源
    */
   private async handleReadTop5HotSearch() {
-    const data = await this.hotSearchService.getTopHotSearch(5);
+    const data = await this.hotSearchService.getHotSearchData();
+    const top5Data = data.slice(0, 5);
     
     return {
       contents: [
         {
           uri: 'baidu://hot-search/top5',
           mimeType: 'application/json',
-          text: JSON.stringify(data, null, 2),
+          text: JSON.stringify(top5Data, null, 2),
         },
       ],
     };
   }
-
 
   /**
    * 处理获取B站热门视频工具
@@ -485,24 +423,7 @@ export class HotContentMCPServer {
   }
 
   /**
-   * 处理获取TOP B站视频工具
-   */
-  private async handleGetTopBilibiliVideos(args: any) {
-    const count = args?.count ?? 5;
-    const results = await this.bilibiliService.getTopBilibiliVideos(count);
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: this.formatBilibiliResults(results, `B站热门视频 TOP ${count}`),
-        },
-      ],
-    };
-  }
-
-  /**
-   * 处理清���B站缓存工具
+   * 处理清除B站缓存工具
    */
   private async handleClearBilibiliCache() {
     this.bilibiliService.clearCache();
@@ -538,14 +459,15 @@ export class HotContentMCPServer {
    * 处理读取TOP5 B站视频资源
    */
   private async handleReadTop5BilibiliVideos() {
-    const data = await this.bilibiliService.getTopBilibiliVideos(5);
+    const data = await this.bilibiliService.getBilibiliHotData();
+    const top5Data = data.slice(0, 5);
     
     return {
       contents: [
         {
           uri: 'bilibili://videos/top5',
           mimeType: 'application/json',
-          text: JSON.stringify(data, null, 2),
+          text: JSON.stringify(top5Data, null, 2),
         },
       ],
     };
@@ -645,7 +567,7 @@ export class HotContentMCPServer {
     await this.server.connect(serverTransport);
     console.error('📱 启动 STDIO 传输模式');
     console.error('🚀 热门内容 MCP 服务器已启动');
-    console.error('📋 可用工具: get_hot_search, get_bilibili_hot, search_hot_search, search_bilibili_videos 等');
+    console.error('📋 可用工具: get_baidu_hot_search, get_bilibili_hot, search_baidu_hot_search, search_bilibili_videos 等');
     console.error('📚 可用资源: baidu://hot-search/*, bilibili://videos/*');
   }
 
@@ -685,15 +607,15 @@ export class HotContentMCPServer {
           'Connection': 'keep-alive',
         });
 
-        res.write('data: {"type":"connection","message":"Connected to Baidu Hot Search MCP Server"}\\n\\n');
+        res.write('data: {"type":"connection","message":"Connected to Hot Content MCP Server"}\\n\\n');
         
         // 发送服务器信息
         const serverInfo = {
           type: 'server-info',
-          name: 'baidu-hot-search-mcp',
-          version: '1.0.0',
-          tools: ['get_hot_search', 'search_hot_search', 'clear_cache'],
-          resources: ['baidu://hot-search/current']
+          name: 'hot-content-mcp',
+          version: '2.3.0',
+          tools: ['get_baidu_hot_search', 'get_bilibili_hot', 'search_baidu_hot_search', 'search_bilibili_videos'],
+          resources: ['baidu://hot-search/current', 'bilibili://videos/current']
         };
         res.write(`data: ${JSON.stringify(serverInfo)}\\n\\n`);
 
@@ -739,9 +661,9 @@ export class HotContentMCPServer {
     httpServer.listen(port, () => {
       console.error(`🌐 启动 SSE 传输模式，端口: ${port}`);
       console.error(`🔗 访问地址: http://localhost:${port}`);
-      console.error('🚀 百度热搜榜 MCP 服务器已启动');
-      console.error('📋 可用工具: get_hot_search, search_hot_search, clear_cache');
-      console.error('📚 可用资源: baidu://hot-search/current');
+      console.error('🚀 热门内容 MCP 服务器已启动');
+      console.error('📋 可用工具: get_baidu_hot_search, get_bilibili_hot, search_baidu_hot_search, search_bilibili_videos');
+      console.error('📚 可用资源: baidu://hot-search/current, bilibili://videos/current');
       console.error('💡 在浏览器中访问上述地址测试SSE连接');
     });
   }
@@ -755,7 +677,7 @@ export class HotContentMCPServer {
         return {
           tools: [
             {
-              name: 'get_hot_search',
+              name: 'get_baidu_hot_search',
               description: '获取百度热搜榜数据',
               inputSchema: {
                 type: 'object',
@@ -765,14 +687,24 @@ export class HotContentMCPServer {
               }
             },
             {
-              name: 'search_hot_search', 
-              description: '搜索包含特定关键词的热搜',
+              name: 'search_baidu_hot_search', 
+              description: '搜索包含特定关键词的百度热搜',
               inputSchema: {
                 type: 'object',
                 properties: {
                   keyword: { type: 'string', description: '搜索关键词' }
                 },
                 required: ['keyword']
+              }
+            },
+            {
+              name: 'get_bilibili_hot',
+              description: '获取B站热门视频数据',
+              inputSchema: {
+                type: 'object',
+                properties: {
+                  count: { type: 'number', description: '要获取的视频数量，默认为10，最大50' }
+                }
               }
             }
           ]
@@ -783,7 +715,7 @@ export class HotContentMCPServer {
         const args = request.params.arguments || {};
         
         switch (toolName) {
-          case 'get_hot_search':
+          case 'get_baidu_hot_search':
             const data = await this.hotSearchService.getHotSearchData();
             const count = args.count || 10;
             const results = data.slice(0, Math.min(count, data.length));
@@ -796,7 +728,7 @@ export class HotContentMCPServer {
               ]
             };
 
-          case 'search_hot_search':
+          case 'search_baidu_hot_search':
             const searchResults = await this.hotSearchService.searchHotSearch(args.keyword);
             return {
               content: [
@@ -805,6 +737,19 @@ export class HotContentMCPServer {
                   text: searchResults.length > 0 
                     ? this.formatHotSearchResults(searchResults, `搜索"${args.keyword}"的结果`)
                     : `没有找到包含关键词"${args.keyword}"的热搜。`
+                }
+              ]
+            };
+
+          case 'get_bilibili_hot':
+            const bilibiliData = await this.bilibiliService.getBilibiliHotData();
+            const bilibiliCount = args.count || 10;
+            const bilibiliResults = bilibiliData.slice(0, Math.min(bilibiliCount, bilibiliData.length));
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: this.formatBilibiliResults(bilibiliResults, `B站热门视频 TOP ${bilibiliCount}`)
                 }
               ]
             };
@@ -826,7 +771,7 @@ export class HotContentMCPServer {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>百度热搜榜 MCP 服务器</title>
+    <title>热门内容 MCP 服务器</title>
     <meta charset="utf-8">
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
@@ -842,11 +787,12 @@ export class HotContentMCPServer {
 </head>
 <body>
     <div class="container">
-        <h1>🔥 百度热搜榜 MCP 服务器</h1>
+        <h1>🔥 热门内容 MCP 服务器</h1>
         <div id="status" class="status">准备连接...</div>
         
         <div>
-            <button onclick="testGetHotSearch()">获取热搜榜</button>
+            <button onclick="testGetBaiduHotSearch()">获取百度热搜</button>
+            <button onclick="testGetBilibiliHot()">获取B站热门</button>
             <button onclick="testSearch()">搜索热搜</button>
             <button onclick="clearMessages()">清空消息</button>
         </div>
@@ -884,7 +830,7 @@ export class HotContentMCPServer {
             };
         }
 
-        async function testGetHotSearch() {
+        async function testGetBaiduHotSearch() {
             try {
                 const response = await fetch('/api', {
                     method: 'POST',
@@ -892,16 +838,37 @@ export class HotContentMCPServer {
                     body: JSON.stringify({
                         method: 'tools/call',
                         params: {
-                            name: 'get_hot_search',
+                            name: 'get_baidu_hot_search',
                             arguments: { count: 5 }
                         }
                     })
                 });
                 const result = await response.json();
-                addMessage('获取热搜榜结果:', 'info');
+                addMessage('获取百度热搜结果:', 'info');
                 addMessage(JSON.stringify(result, null, 2), 'success');
             } catch (error) {
-                addMessage('获取热搜榜失败: ' + error.message, 'error');
+                addMessage('获取百度热搜失败: ' + error.message, 'error');
+            }
+        }
+
+        async function testGetBilibiliHot() {
+            try {
+                const response = await fetch('/api', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        method: 'tools/call',
+                        params: {
+                            name: 'get_bilibili_hot',
+                            arguments: { count: 5 }
+                        }
+                    })
+                });
+                const result = await response.json();
+                addMessage('获取B站热门结果:', 'info');
+                addMessage(JSON.stringify(result, null, 2), 'success');
+            } catch (error) {
+                addMessage('获取B站热门失败: ' + error.message, 'error');
             }
         }
 
@@ -916,7 +883,7 @@ export class HotContentMCPServer {
                     body: JSON.stringify({
                         method: 'tools/call',
                         params: {
-                            name: 'search_hot_search',
+                            name: 'search_baidu_hot_search',
                             arguments: { keyword }
                         }
                     })
