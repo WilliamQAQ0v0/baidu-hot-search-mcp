@@ -41,7 +41,7 @@ npx hot-content-mcp
 # 启动SSE模式用于Web应用
 npx hot-content-mcp sse 3000
 
-# 使用自定义配置文件位置
+# 使用自定义配置文件位置（推荐）
 npx hot-content-mcp --config /path/to/config.json
 
 # 备用方式：从GitHub运行
@@ -99,14 +99,40 @@ npm install && npm run build && npm run start
 
 **配置步骤**:
 
-1. 打开 Cherry Studio 设置
-2. 找到 **MCP 服务器** 选项  
-3. 点击 **添加服务器**
-4. 填写：
+1. 首先创建配置文件 `config.json`：
+   ```json
+   {
+     "api": {
+       "id": "your_actual_api_id",
+       "key": "your_actual_api_key"
+     }
+   }
+   ```
+
+2. 将配置文件保存到以下任一位置：
+   - **用户目录** (推荐): `C:\Users\用户名\config.json` (Windows) 或 `~/config.json` (Mac/Linux)
+   - **应用数据目录**: `%APPDATA%\hot-content-mcp\config.json` (Windows) 或 `~/.config/hot-content-mcp/config.json` (Mac/Linux)
+
+3. 打开 Cherry Studio 设置
+4. 找到 **MCP 服务器** 选项  
+5. 点击 **添加服务器**
+6. 填写：
    - **名称**: `hot-content`
    - **命令**: `npx`
    - **参数**: `hot-content-mcp`
-5. 保存并重启
+7. 保存并重启
+
+**高级选项**：如需自定义配置文件位置，可以使用：
+```json
+{
+  "mcpServers": {
+    "hot-content": {
+      "command": "npx", 
+      "args": ["hot-content-mcp", "--config", "/path/to/your/config.json"]
+    }
+  }
+}
+```
 
 ### Claude Desktop
 
