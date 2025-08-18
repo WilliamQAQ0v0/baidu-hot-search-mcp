@@ -11,11 +11,26 @@
 
 ## ⚡ 快速开始
 
-**⚠️ 重要：请先创建配置文件再运行命令！**
+**⚠️ 重要：请先设置环境变量或创建配置文件再运行命令！**
 
-### 第一步：创建配置文件
+### 第一步：设置环境变量（推荐）
 
-在运行任何命令之前，必须先创建 `config.json` 文件：
+**获取 API 凭据**：请访问 [API盒子](https://www.apihz.cn/?shareid=10004969) 获取您的 API ID 和密钥。
+**方法1：设置环境变量（最简单）**
+
+```bash
+# Linux/Mac
+export HOT_CONTENT_API_ID="your_actual_api_id"
+export HOT_CONTENT_API_KEY="your_actual_api_key"
+
+# Windows
+set HOT_CONTENT_API_ID=your_actual_api_id
+set HOT_CONTENT_API_KEY=your_actual_api_key
+```
+
+**方法2：创建配置文件（传统方式）**
+
+如果不使用环境变量，可以创建 `config.json` 文件：
 
 ```json
 {
@@ -26,32 +41,27 @@
 }
 ```
 
-**注意**：请替换为您的真实 API 凭据，不能使用示例值。
 
-**获取 API 凭据**：请访问 [API盒子](https://www.apihz.cn/?shareid=10004969) 获取您的 API ID 和密钥。
 
 ### 第二步：运行服务
 
-配置文件创建完成后，即可运行：
+环境变量或配置文件设置完成后，即可运行：
 
 ```bash
 # 直接运行（无需安装）
-npx hot-content-mcp
+npx hot-content-mcp@2.4.0
 
 # 启动SSE模式用于Web应用
-npx hot-content-mcp sse 3000
+npx hot-content-mcp@2.4.0 sse 3000
 
-# 使用自定义配置文件位置（推荐）
-npx hot-content-mcp --config /path/to/config.json
-
-# 备用方式：从GitHub运行
-npx https://github.com/WilliamQAQ0v0/hot-content-mcp
+# 使用自定义配置文件位置
+npx hot-content-mcp@2.4.0 --config /path/to/config.json
 ```
 
 ### 本地开发
 
 ```bash
-# 确保已创建 config.json 文件后再运行
+# 确保已设置环境变量或创建 config.json 文件后再运行
 npm install && npm run build && npm run start
 ```
 
@@ -82,20 +92,25 @@ npm install && npm run build && npm run start
 
 **配置文件位置**: Cherry Studio 设置 → MCP服务器
 
-**推荐配置**:
+**方式1：环境变量配置（推荐）**
 
+1. 设置系统环境变量：
+   - `HOT_CONTENT_API_ID` = your_actual_api_id
+   - `HOT_CONTENT_API_KEY` = your_actual_api_key
+
+2. Cherry Studio MCP配置：
 ```json
 {
   "mcpServers": {
     "hot-content": {
       "command": "npx",
-      "args": ["hot-content-mcp"]
+      "args": ["hot-content-mcp@2.4.0"]
     }
   }
 }
 ```
 
-**配置步骤**:
+**方式2：配置文件**
 
 1. 首先创建配置文件 `config.json`：
    ```json
@@ -111,14 +126,32 @@ npm install && npm run build && npm run start
    - **用户目录** (推荐): `C:\Users\用户名\config.json` (Windows) 或 `~/config.json` (Mac/Linux)
    - **应用数据目录**: `%APPDATA%\hot-content-mcp\config.json` (Windows) 或 `~/.config/hot-content-mcp/config.json` (Mac/Linux)
 
-3. 打开 Cherry Studio 设置
-4. 找到 **MCP 服务器** 选项  
-5. 点击 **添加服务器**
-6. 填写：
+3. Cherry Studio MCP配置：
+```json
+{
+  "mcpServers": {
+    "hot-content": {
+      "command": "npx",
+      "args": ["hot-content-mcp@2.4.0"]
+    }
+  }
+}
+```
+
+**配置步骤**:
+
+1. 打开 Cherry Studio 设置
+2. 找到 **MCP 服务器** 选项  
+3. 点击 **添加服务器**
+4. 填写：
    - **名称**: `hot-content`
    - **命令**: `npx`
-   - **参数**: `hot-content-mcp`
-7. 保存并重启
+   - **参数**: `hot-content-mcp@2.4.0` （**建议指定版本号确保使用最新版**）
+5. 保存并重启
+
+**版本更新说明**：
+- 如果遇到版本显示不正确，请在配置中指定版本号：`hot-content-mcp@2.4.0`
+- 或者清除npx缓存：`npx clear-npx-cache` 或 `npm cache clean --force`
 
 **高级选项**：如需自定义配置文件位置，可以使用：
 ```json
@@ -126,7 +159,7 @@ npm install && npm run build && npm run start
   "mcpServers": {
     "hot-content": {
       "command": "npx", 
-      "args": ["hot-content-mcp", "--config", "/path/to/your/config.json"]
+      "args": ["hot-content-mcp@2.4.0", "--config", "/path/to/your/config.json"]
     }
   }
 }
@@ -149,9 +182,38 @@ npm install && npm run build && npm run start
 
 ## 🔧 配置说明
 
-**从 v2.0.0 开始，使用统一的 API 配置格式。**
+**从 v2.3.1 开始，支持环境变量配置，无需创建配置文件！**
 
-### 当前配置格式（推荐）
+### 配置优先级
+
+1. **环境变量**（推荐） - 更安全、更方便
+2. **配置文件** - 传统方式
+
+### 方式1：环境变量配置（推荐）
+
+设置以下环境变量即可直接使用，无需创建配置文件：
+
+```bash
+# 设置环境变量
+export HOT_CONTENT_API_ID="your_actual_api_id"
+export HOT_CONTENT_API_KEY="your_actual_api_key"
+
+# 直接运行
+npx hot-content-mcp@2.4.0
+```
+
+**Windows 用户：**
+```cmd
+set HOT_CONTENT_API_ID=your_actual_api_id
+set HOT_CONTENT_API_KEY=your_actual_api_key
+npx hot-content-mcp@2.4.0
+```
+
+### 方式2：配置文件
+
+如果未设置环境变量，系统会自动查找配置文件：
+
+**当前配置格式（推荐）**
 
 ```json
 {
@@ -161,19 +223,6 @@ npm install && npm run build && npm run start
   }
 }
 ```
-
-### 兼容的旧格式
-
-```json
-{
-  "baidu_api": {
-    "id": "your_actual_api_id", 
-    "key": "your_actual_api_key"
-  }
-}
-```
-
-**注意**：旧格式会自动转换为新格式，建议更新到新格式。
 
 ### 配置文件位置
 

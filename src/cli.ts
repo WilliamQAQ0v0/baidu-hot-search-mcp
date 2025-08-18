@@ -53,29 +53,46 @@ if (customConfigPath && !configPath) {
   process.exit(1);
 }
 
-// 如果没有找到任何配置文件
+// 如果没有找到任何配置文件且没有设置环境变量
 if (!configPath) {
-  console.error('❌ 找不到 config.json 配置文件');
-  console.error('📝 请在以下任一位置创建配置文件:');
-  console.error(`   1. 当前目录: ${join(process.cwd(), 'config.json')}`);
-  console.error(`   2. 用户目录: ${join(process.env.HOME || process.env.USERPROFILE || '', 'config.json')}`);
-  if (process.platform === 'win32') {
-    console.error(`   3. 应用数据目录: ${join(process.env.APPDATA || '', 'hot-content-mcp', 'config.json')}`);
+  // 检查是否设置了环境变量
+  const hasEnvConfig = process.env.HOT_CONTENT_API_ID && process.env.HOT_CONTENT_API_KEY;
+  const hasLegacyEnvConfig = process.env.BAIDU_API_ID && process.env.BAIDU_API_KEY;
+  
+  if (hasEnvConfig || hasLegacyEnvConfig) {
+    console.error('📂 使用环境变量配置');
+    console.error(hasEnvConfig ? '✅ 检测到 HOT_CONTENT_API_* 环境变量' : '✅ 检测到 BAIDU_API_* 环境变量（兼容模式）');
   } else {
-    console.error(`   3. 用户配置目录: ${join(process.env.HOME || '', '.config', 'hot-content-mcp', 'config.json')}`);
-  }
-  console.error(`   4. 或使用 --config 参数指定配置文件路径`);
-  console.error('');
-  console.error('📋 配置文件格式:');
-  console.error(JSON.stringify({
-    "api": {
-      "id": "your_actual_api_id",
-      "key": "your_actual_api_key"
+    console.error('❌ 找不到 config.json 配置文件且未设置环境变量');
+    console.error('📝 请选择以下任一方式进行配置：');
+    console.error('');
+    console.error('方式1：环境变量配置（推荐）');
+    console.error('  设置以下环境变量：');
+    console.error('  - HOT_CONTENT_API_ID=your_actual_api_id');
+    console.error('  - HOT_CONTENT_API_KEY=your_actual_api_key');
+    console.error('');
+    console.error('方式2：配置文件');
+    console.error('  在以下任一位置创建 config.json：');
+    console.error(`  1. 当前目录: ${join(process.cwd(), 'config.json')}`);
+    console.error(`  2. 用户目录: ${join(process.env.HOME || process.env.USERPROFILE || '', 'config.json')}`);
+    if (process.platform === 'win32') {
+      console.error(`  3. 应用数据目录: ${join(process.env.APPDATA || '', 'hot-content-mcp', 'config.json')}`);
+    } else {
+      console.error(`  3. 用户配置目录: ${join(process.env.HOME || '', '.config', 'hot-content-mcp', 'config.json')}`);
     }
-  }, null, 2));
-  console.error('');
-  console.error('🔗 获取API凭据: https://www.apihz.cn/?shareid=10004969');
-  process.exit(1);
+    console.error(`  4. 或使用 --config 参数指定配置文件路径`);
+    console.error('');
+    console.error('📋 配置文件格式:');
+    console.error(JSON.stringify({
+      "api": {
+        "id": "your_actual_api_id",
+        "key": "your_actual_api_key"
+      }
+    }, null, 2));
+    console.error('');
+    console.error('🔗 获取API凭据: https://www.apihz.cn/?shareid=10004969');
+    process.exit(1);
+  }
 }
 
 const server = new HotContentMCPServer(configPath);

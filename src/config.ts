@@ -23,8 +23,20 @@ export class ConfigManager {
    */
   public loadConfig(): Config {
     try {
+      // 优先级：环境变量 > 配置文件
+      
+      // 1. 尝试从环境变量加载
+      const envConfig = this.loadConfigFromEnv();
+      if (envConfig) {
+        this.validateConfig(envConfig);
+        this.config = envConfig as Config;
+        console.log('📂 使用环境变量配置');
+        return this.config;
+      }
+
+      // 2. 尝试从配置文件加载
       if (!existsSync(this.configPath)) {
-        throw new Error(`配置文件不存在: ${this.configPath}`);
+        throw new Error(`配置文件不存在且未设置环境变量: ${this.configPath}`);
       }
 
       const configContent = readFileSync(this.configPath, 'utf8');
@@ -34,10 +46,30 @@ export class ConfigManager {
       this.validateConfig(parsedConfig);
       
       this.config = parsedConfig as Config;
+      console.log(`📂 使用配置文件: ${this.configPath}`);
       return this.config;
     } catch (error) {
-      throw new Error(`加载配置文件失败: ${error instanceof Error ? error.message : '未知错误'}`);
+      throw new Error(`加载配置失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
+  }
+
+  /**
+   * 从环境变量加载配置
+   */
+  private loadConfigFromEnv(): Config | null {
+    const apiId = process.env.HOT_CONTENT_API_ID || process.env.BAIDU_API_ID; // 兼容旧的环境变量名
+    const apiKey = process.env.HOT_CONTENT_API_KEY || process.env.BAIDU_API_KEY; // 兼容旧的环境变量名
+
+    if (!apiId || !apiKey) {
+      return null;
+    }
+
+    return {
+      api: {
+        id: apiId.trim(),
+        key: apiKey.trim()
+      }
+    };
   }
 
   /**
