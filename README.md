@@ -29,6 +29,12 @@ set HOT_CONTENT_API_ID=your_actual_api_id
 set HOT_CONTENT_API_KEY=your_actual_api_key
 ```
 
+使用cherry studio时，在环境变量内配置也可运行
+```
+HOT_CONTENT_API_ID=your_actual_api_id
+HOT_CONTENT_API_KEY=your_actual_api_key
+```
+
 **方法2：创建配置文件（传统方式）**
 
 如果不使用环境变量，可以创建 `config.json` 文件：
